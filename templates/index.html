@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <title>Buscar CPF</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-4">
+      <h2>Buscar CPF</h2>
+      <form method="GET" action="/buscar_cpf">
+        <div class="form-group">
+          <label for="usuario">Usuário:</label>
+          <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Digite o usuário" required>
+        </div>
+        <div class="form-group">
+          <label for="senha">Senha:</label>
+          <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite a senha" required>
+        </div>
+        <div class="form-group">
+          <label for="cpf">CPF:</label>
+          <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite o CPF" required>
+        </div>
+        <input type="hidden" id="usuarioHidden" name="usuarioHidden">
+        <input type="hidden" id="senhaHidden" name="senhaHidden">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+      <div class="mt-4" id="resultado"></div>
+    </div>
+    <script>
+      $('form').submit(function(event) {
+        event.preventDefault();
+        $('#usuarioHidden').val($('#usuario').val());
+        $('#senhaHidden').val($('#senha').val());
+        $('form').attr('action', `/buscar_cpf?usuario=${$('#usuario').val()}&senha=${$('#senha').val()}`);
+        $.get($('form').attr('action'), {'cpf': $('#cpf').val()}, function(data) {
+          $('#resultado').html(`
+            <p><strong>CPF:</strong> ${data.cpf}</p>
+            <p><strong>Nome:</strong> ${data.nome}</p>
+            <p><strong>Última consulta:</strong> ${data.ultima_consulta}</p>
+            <p><strong>Movimentação financeira:</strong> ${data.movimentacao_financeira}</p>
+          `);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+              if (jqXHR.status == 401) {
+                $('#resultado').html(`
+                  <p class="text-danger">Usuário ou senha incorretos.</p>
+                `);
+              } else {
+                $('#resultado').html(`
+                  <p class="text-danger">${jqXHR.responseJSON.erro}</p>
+                `);
+              }
+            });
+      });
+    </script>
+  </body>
+</html>
